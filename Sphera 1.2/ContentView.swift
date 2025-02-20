@@ -83,6 +83,8 @@ struct AudioPlayerView: View {
                 // Setup the audio player when the view appears
                 if let url = url {
                     setupAudio(withURL: url)
+                } else {
+                    print("Audio file URL is nil.")
                 }
             }
             .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
@@ -99,13 +101,8 @@ struct AudioPlayerView: View {
 
 struct ContentView: View {
     var body: some View {
-        AudioPlayerView(fileName: "Example Audio", url: Bundle.main.url(forResource: "sample", withExtension: "mp3"))
+        AudioPlayerView(fileName: "QT – Hey QT", url: Bundle.main.url(forResource: "QT – Hey QT", withExtension: "mp3"))
             .padding()
     }
 }
-#Preview {
-    AudioPlayerView(fileName: "QT – Hey QT", url: URL(string: "QT – Hey QT"))
-        .padding()
-}
-
 
