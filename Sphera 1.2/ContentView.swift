@@ -24,6 +24,7 @@ struct AudioPlayerView: View {
     // Setup the audio player with the given URL
     private func setupAudio(withURL url: URL) {
         do {
+            
             player = try AVAudioPlayer(contentsOf: url)
             player?.prepareToPlay()
             totalTime = player?.duration ?? 0.0  // Set the total duration of the audio
