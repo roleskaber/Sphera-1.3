@@ -2,16 +2,27 @@ import SwiftUI
 import AVFoundation
 import AVKit
 
-
+class Music {
+    var name: String
+    var path: String
+    var mood: Double
+    var videoPath: String
+    init(name: String, path: String, mood: Double, videoPath: String) {
+        self.name = name
+        self.path = path
+        self.mood = mood
+        self.videoPath = videoPath
+    }
+}
+let Qt = Music(name: "QT – Hey QT", path: "QT – Hey QT", mood: 0.9, videoPath: "" )
 struct AudioPlayerView: View {
     
-    @State private var player: AVAudioPlayer?  // The audio player instance
-    @State private var isPlaying = false  // Tracks whether the audio is playing or not
-    @State private var totalTime: TimeInterval = 0.0  // Total duration of the audio
-    @State private var currentTime: TimeInterval = 0.0  // Current playback time of the audio
-    
-    var fileName: String?  // The name of the audio file to display
-    var url: URL?  // The URL of the audio file
+    @State private var player: AVAudioPlayer?
+    @State private var isPlaying = false
+    @State private var totalTime: TimeInterval = 0.0
+    @State private var currentTime: TimeInterval = 0.0
+    var fileName: String?
+    var url: URL?
     
     
     
@@ -21,61 +32,66 @@ struct AudioPlayerView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    // Setup the audio player with the given URL
     private func setupAudio(withURL url: URL) {
         do {
             
             player = try AVAudioPlayer(contentsOf: url)
             player?.prepareToPlay()
-            totalTime = player?.duration ?? 0.0  // Set the total duration of the audio
+            totalTime = player?.duration ?? 0.0
         } catch {
             print("Error loading audio: \(error)")
         }
     }
-
-    // Update the current time of the audio playback
+    
     private func updateProgress() {
         guard let player = player, player.isPlaying else { return }
-        currentTime = player.currentTime  // Update the current time state
+        currentTime = player.currentTime
     }
     
     var body: some View {
-        ZStack {
+        NavigationView {
             VStack {
                 if let player = player {
-                    Text(fileName ?? "File")  // Display the file name or a default text
+                    
                     
                     HStack {
                         Button(action: {
-                            // Toggle play/pause state
+                        
                             isPlaying.toggle()
                             if isPlaying {
-                                player.play()  // Play the audio
+                                player.play()
                             } else {
-                                player.pause()  // Pause the audio
+                                player.pause()
                             }
-                        }) {
-                            // Display play or pause button based on the isPlaying state
+                        })
+                        {
+                            
                             Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.largeTitle)
                         }
                         .buttonStyle(PlainButtonStyle())
                         
+                        
                         Slider(value: Binding(get: {
                             currentTime
                         }, set: { newValue in
-                            // Update the player's current time and the currentTime state
+                          
                             player.currentTime = newValue
                             currentTime = newValue
-                        }), in: 0...totalTime)  // Slider range from 0 to the total duration of the audio
-                        .accentColor(.blue)  // Slider color
+                        }), in: 0...totalTime)
+                        .accentColor(.blue)
+                        NavigationLink(destination: DetailView(init_mood: Qt.mood)){
+                            Text("Set")
+                        }
                     }
                     
+                    
                     HStack {
-                        Text("\(formatTime(currentTime))")  // Display the current time
+                        Text("\(formatTime(currentTime))")
                         Spacer()
-                        Text("\(formatTime(totalTime))")  // Display the total time
+                        Text("\(formatTime(totalTime))")
                     }
+                    Text("Now playing: " + (fileName ?? "File"))
                     .padding(.horizontal)
                 }
             }
@@ -98,14 +114,31 @@ struct AudioPlayerView: View {
         }}
 }
 
-
 struct ContentView: View {
     var body: some View {
-        AudioPlayerView(fileName: "QT – Hey QT", url: Bundle.main.url(forResource: "QT – Hey QT", withExtension: "mp3"))
+        
+        AudioPlayerView(fileName: Qt.name, url: Bundle.main.url(forResource: Qt.path, withExtension: "mp3"))
             .padding()
     }
 }
 
+struct DetailView : View {
+    @State var init_mood: Double
+    var body: some View {
+         
+            VStack {
+                Slider(value: Binding(get: {
+                    init_mood
+                }, set: { newValue in
+                    init_mood = newValue
+                }), in: 0...1)
+                .accentColor(.blue)
+                
+                Text("Choose mood")
+            }
+        
+    }
+}
 #Preview {
     ContentView()
 }
