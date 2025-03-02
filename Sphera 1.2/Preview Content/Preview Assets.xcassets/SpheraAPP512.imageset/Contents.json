@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "SpheraAPP128.png",
+      "filename" : "SPHERA_LIGHT_64.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "SphreaAPP256.png",
+      "filename" : "SPHERA_LIGHT_64 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "SpheraAPP512.png",
+      "filename" : "SPHERA_LIGHT_64 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

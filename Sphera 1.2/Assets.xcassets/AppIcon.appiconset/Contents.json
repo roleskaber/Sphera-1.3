@@ -7,37 +7,37 @@
       "size" : "16x16"
     },
     {
-      "filename" : "SpheraAPP32.png",
+      "filename" : "SPHERA_LIGHT_32 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "SpheraAPP32 1.png",
+      "filename" : "SPHERA_LIGHT_32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "SpheraAPP64.png",
+      "filename" : "SPHERA_LIGHT_64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "SpheraAPP128.png",
+      "filename" : "SPHERA_LIGHT_128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "SphreaAPP 9.png",
+      "filename" : "SPHERA_LIGHT_256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "SphreaAPP 2.png",
+      "filename" : "SPHERA_LIGHT_256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
