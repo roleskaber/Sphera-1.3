@@ -5,7 +5,7 @@ import SwiftData
 
 struct AudioPlayerView: View {
     @Environment(\.openWindow) private var openWindow
-    
+    @Binding var Deck_1: Deck
     //Music vars
     @State private var player: AVAudioPlayer?
     @State private var isPlaying = false
@@ -34,7 +34,9 @@ struct AudioPlayerView: View {
                         isPlaying.toggle()
                         if isPlaying {
                             player.play()
+                            
                         } else {
+             //               loadAVAudio()
                             player.pause()
                         }
                     })
@@ -62,7 +64,7 @@ struct AudioPlayerView: View {
                     Spacer()
                     Text("\(formatTime(totalTime))")
                 }
-                Text("Now playing: " + (fileName ?? "File"))
+                Text("Now playing: " + (Deck_1.path))
                 .padding(.horizontal)
                 
                 Button("Show details") {
@@ -71,38 +73,46 @@ struct AudioPlayerView: View {
             }
         }
         .onAppear {
-            if let url = Bundle.main.url(forResource: "QT – Hey QT", withExtension: "mp3"){
-                    do {
-                        player = try AVAudioPlayer(contentsOf: url)
-                        player?.prepareToPlay()
-                        totalTime = player?.duration ?? 0.0
-                    } catch {
-                        print("Error loading audio: \(error)")
-                    }
-                
-            } else {
-                print("Audio file URL is nil.")
-            }
+            loadAVAudio()
             
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
             updateProgress()
+            loadAVAudio()
         }
         .onDisappear {
             player?.stop()
         }
         
+    }
+    
+    func loadAVAudio ()
+    {
+        @State var firstpoint = Deck_1.path.firstIndex(of: ".") ?? Deck_1.path.endIndex
+        @State var path = Deck_1.path[..<firstpoint]
+        if let url = Bundle.main.url(forResource: String(path), withExtension: "mp3"){
+                do {
+                    player = try AVAudioPlayer(contentsOf: url)
+                    player?.prepareToPlay()
+                    totalTime = player?.duration ?? 0.0
+                } catch {
+                    print("Error loading audio: \(error)")
+                }
+            
+        } else {
+            print("Audio file URL is nil.")
         }
+        
+    }
+    
 }
 
 struct ContentView: View {
+    @Binding var Deck_1: Deck
+//    @Binding var Deck_2: Deck
     var body: some View {
-        
-        AudioPlayerView(fileName: "QT – Hey QT", url: Bundle.main.url(forResource: "QT – Hey QT", withExtension: "mp3"))
-            .padding()
+            AudioPlayerView(Deck_1: $Deck_1) // Передаем Binding
+                .padding()
     }
 }
 
-#Preview {
-    ContentView()
-}

@@ -10,12 +10,12 @@ import SwiftUI
 
 struct DetailView: View {
     var init_mood: Double
-    
+    @Binding var Deck_1: Deck
+    @Binding var Deck_2: Deck
     //Lib model tools
     @Environment(\.modelContext) private var modelContext
-    @Query var musicLib: [Music] = []
-
-    @Query var standartMusicLib: [Music] = []
+    @Query var musicLib: [Music]
+    @Query var standartMusicLib: [Music]
     
     var body: some View {
         NavigationSplitView {
@@ -32,14 +32,26 @@ struct DetailView: View {
                                 }
                             }
                             Spacer()
-                            Slider(value: Binding(get: {
-                                item.mood
-                            }, set: { newValue in
-                                item.mood = newValue
-                            }), in: 0...1)
-                            .accentColor(.blue)
-                            Text("Choose mood")
-                                .padding()
+                            HStack {
+                                Slider(value: Binding(get: {
+                                    item.mood
+                                }, set: { newValue in
+                                    item.mood = newValue
+                                }), in: 0...1)
+                                .accentColor(.blue)
+                                Text("Choose mood")
+                                    .padding()
+                                Button("Load Background", systemImage: "trash") {
+                                    Deck_2.play = item.name
+                                    Deck_2.path = item.path
+                                }
+                                Button("Load main", systemImage: "trash") {
+                                    Deck_1.play = item.name
+                                    Deck_1.path = item.path
+                                }
+                            }
+                            
+                            
                         } label: {
                             Text(item.name)
                         }
@@ -102,9 +114,11 @@ struct DetailView: View {
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(musicLib[index])
+                let itemToDelete = musicLib[index]
+                modelContext.delete(itemToDelete)
             }
         }
     }
-
 }
+
+

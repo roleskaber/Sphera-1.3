@@ -8,9 +8,13 @@
 import SwiftUI
 import SwiftData
 
+
+
+                                
 @main
 struct Sphera_1_2App: App {
-    
+    @State private var deck1 = Deck(play: "", path: "")
+    @State private var deck2 = Deck(play: "", path: "")
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Music.self,
@@ -24,14 +28,19 @@ struct Sphera_1_2App: App {
         }
     }()
     
+    
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(Deck_1: $deck1)
         }
-        WindowGroup (id: "mail-viewer"){
-            DetailView(init_mood: 1)
-        }
-        .modelContainer(sharedModelContainer)
         
+
+        WindowGroup (id: "mail-viewer") {
+            DetailView(init_mood: 1, Deck_1: $deck1, Deck_2: $deck2)
+        }
+
+        .modelContainer(sharedModelContainer)
+         
     }
 }
