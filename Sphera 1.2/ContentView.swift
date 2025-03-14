@@ -4,8 +4,10 @@ import Foundation
 import SwiftData
 
 struct AudioPlayerView: View {
+    
     @Environment(\.openWindow) private var openWindow
     @Binding var Deck_1: Deck
+    @Binding var menu: Bool
     
     //Music vars
     @State private var isPlaying = false
@@ -23,49 +25,73 @@ struct AudioPlayerView: View {
 //    }
     @State private var playLogo: String = ""
     var body: some View {
-        VStack {
-            Spacer()
-            if let player = Deck_1.player {
-                HStack {
-                    Button(action: {
-                        
-                        isPlaying.toggle()
-                        if isPlaying {
-                            player.play()
+        ZStack {
+            MeshGradient(
+                width: 2,
+                height: 2,
+                points: [
+                    [0.0, 0.0],[1.0, 0.0],
+                    [0.0, 1.0],[1.0, 1.0]
+                ],
+                colors: [
+                    .blue,
+                    .indigo,
+                    .blue,
+                    .indigo
+                ]
+            )
+            .opacity(0.1)
+            VStack {
+                
+                Spacer()
+                if let player = Deck_1.player {
+                    HStack {
+                        Button(action: {
                             
-                        } else {
-                            player.pause()
+                            isPlaying.toggle()
+                            if isPlaying {
+                                player.play()
+                                
+                            } else {
+                                player.pause()
+                            }
+                        })
+                        {
+                            
+                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                .font(.largeTitle)
                         }
-                    })
-                    {
+                        .buttonStyle(PlainButtonStyle())
                         
-                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .font(.largeTitle)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    
-                    Slider(value: Binding(get: {
+                        
+                        Slider(value: Binding(get: {
                             player.currentTime
                         }, set: { newValue in
                             player.currentTime = newValue
                         }), in: 0...(player.duration))
                         .accentColor(.blue)
+                    }
+                    
+                    
+                    HStack {
+                        Text("To the end of Scene: " + "\(formatTime(player.duration - player.currentTime))")
+                    }
+                    Spacer()
+                    Text("Now playing: " + (Deck_1.path))
+                        .padding(.horizontal)
+                    
+                    Button("Set") {
+//                        openWindow(id: "mail-viewer")
+                        menu = false
+                        
+                    }
                 }
-                
-                
-                HStack {
-                    Text("To the end of Scene: " + "\(formatTime(player.duration - player.currentTime))")
-                }
-                Spacer()
-                Text("Now playing: " + (Deck_1.path))
-                .padding(.horizontal)
-                
-                Button("Show details") {
-                            openWindow(id: "mail-viewer")
-                        }
             }
+            .padding()
+            
         }
+            
+        
         .onAppear {
             
             Deck_1.loadAVAudio()
@@ -86,32 +112,18 @@ struct AudioPlayerView: View {
         
     }
     
-//    func loadAVAudio ()
-//    {
-//        @State var firstpoint = Deck_1.path.firstIndex(of: ".") ?? Deck_1.path.endIndex
-//        @State var path = Deck_1.path[..<firstpoint]
-//        if let url = Bundle.main.url(forResource: String(path), withExtension: "mp3"){
-//                do {
-//                    player = try AVAudioPlayer(contentsOf: url)
-//                    player?.prepareToPlay()
-//                    totalTime = player?.duration ?? 0.0
-//                } catch {
-//                    print("Error loading audio: \(error)")
-//                }
-//            
-//        } else {
-//            print("Audio file URL is nil.")
-//        }
-//        
-//    }
-    
 }
 
 struct ContentView: View {
+    @Binding var menu: Bool
     @Binding var Deck_1: Deck
 //    @Binding var Deck_2: Deck
     var body: some View {
-            AudioPlayerView(Deck_1: $Deck_1) // Передаем Binding
-                .padding()
+        if menu {
+            AudioPlayerView(Deck_1: $Deck_1, menu: $menu)
+        }
+        else {
+            DetailView(init_mood: 0.0, Deck_1: $Deck_1, Deck_2: .constant(Deck(play: "", path: "", trigger: false)))
+        }
     }
 }

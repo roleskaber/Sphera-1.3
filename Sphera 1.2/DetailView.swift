@@ -10,9 +10,12 @@ import SwiftUI
 
 struct DetailView: View {
     var init_mood: Double
+    
     @Binding var Deck_1: Deck
     @Binding var Deck_2: Deck
+    
     @Environment(\.modelContext) private var modelContext
+    
     @Query var musicLib: [Music]
     @Query var standartMusicLib: [Music]
     
