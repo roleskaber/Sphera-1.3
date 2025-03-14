@@ -12,10 +12,12 @@ struct DetailView: View {
     var init_mood: Double
     @Binding var Deck_1: Deck
     @Binding var Deck_2: Deck
-    //Lib model tools
     @Environment(\.modelContext) private var modelContext
     @Query var musicLib: [Music]
     @Query var standartMusicLib: [Music]
+    
+    //Finder
+    @State private var isImporting: Bool = false
     
     var body: some View {
         NavigationSplitView {
@@ -26,10 +28,8 @@ struct DetailView: View {
                             HStack {
                                 Text(item.name)
                                     .font(.largeTitle)
-                                Spacer()
-                                Button("Delete", systemImage: "trash", role: .destructive) {
-                                    modelContext.delete(item)
-                                }
+                                    .padding()
+                                
                             }
                             Spacer()
                             HStack {
@@ -41,16 +41,32 @@ struct DetailView: View {
                                 .accentColor(.blue)
                                 Text("Choose mood")
                                     .padding()
-                                Button("Load Background", systemImage: "trash") {
+                                
+                            }
+                            .padding()
+                            HStack {
+                                Button("", systemImage: "trash", role: .destructive) {
+                                    modelContext.delete(item)
+                                    
+                                } .buttonStyle(PlainButtonStyle())
+                                    .opacity(40)
+                                    
+                            
+                                
+                                Spacer()
+                                Button("Load Background", systemImage: "circle.bottomrighthalf.pattern.checkered") {
                                     Deck_2.play = item.name
                                     Deck_2.path = item.path
-                                }
-                                Button("Load main", systemImage: "trash") {
+                                    Deck_2.trigger = true
+                                }.buttonStyle(.borderedProminent)
+                                Button("Load main", systemImage: "lightspectrum.horizontal") {
                                     Deck_1.play = item.name
                                     Deck_1.path = item.path
-                                }
+                                    Deck_1.trigger = true
+                                }.buttonStyle(.borderedProminent)
                             }
-                            
+                            .controlSize(.large)
+                            .padding()
                             
                         } label: {
                             Text(item.name)
@@ -64,9 +80,18 @@ struct DetailView: View {
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
             .toolbar {
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                    Button("Add Item", systemImage: "plus") {
+                            isImporting = true
+                        }
+                        .fileImporter(isPresented: $isImporting, allowedContentTypes: [.mp3]) { result in
+                            switch result {
+                            case .success(let url):
+                                let filepath = url.path  // Получаем путь к файлу
+                                addItem(url: filepath)
+                            case .failure(let error):
+                                print(error)
+                            }
+                        }
                 }
             }
         } detail: {
@@ -102,9 +127,11 @@ struct DetailView: View {
         }
         
     }
-    private func addItem() {
+    private func addItem(url: String) {
         withAnimation {
-            let newItem = Music(name: "Hui", path: "", mood: 0)
+            let firstpoint = url.firstIndex(of: ".") ?? url.endIndex
+            let name = url[..<firstpoint]
+            let newItem = Music(name: String(name), path: url, mood: 0)  // Используем String(name)
             modelContext.insert(newItem)
         }
     }
@@ -120,5 +147,4 @@ struct DetailView: View {
         }
     }
 }
-
 

@@ -6,13 +6,10 @@ import SwiftData
 struct AudioPlayerView: View {
     @Environment(\.openWindow) private var openWindow
     @Binding var Deck_1: Deck
+    
     //Music vars
-    @State private var player: AVAudioPlayer?
     @State private var isPlaying = false
     @State private var totalTime: TimeInterval = 0.0
-    @State private var currentTime: TimeInterval = 0.0
-    var fileName: String?
-    var url: URL?
     
     private func formatTime(_ time: TimeInterval) -> String {
         let seconds = Int(time) % 60
@@ -20,23 +17,23 @@ struct AudioPlayerView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
-    private func updateProgress() {
-        guard let player = player, player.isPlaying else { return }
-        currentTime = player.currentTime
-    }
-    
+//    private func updateProgress() {
+//        guard let player = player, player.isPlaying else { return }
+//        currentTime = player.currentTime
+//    }
+    @State private var playLogo: String = ""
     var body: some View {
         VStack {
-            if let player = player {
+            Spacer()
+            if let player = Deck_1.player {
                 HStack {
                     Button(action: {
-
+                        
                         isPlaying.toggle()
                         if isPlaying {
                             player.play()
                             
                         } else {
-             //               loadAVAudio()
                             player.pause()
                         }
                     })
@@ -49,21 +46,18 @@ struct AudioPlayerView: View {
                     
                     
                     Slider(value: Binding(get: {
-                        currentTime
-                    }, set: { newValue in
-                        player.currentTime = newValue
-                        currentTime = newValue
-                    }), in: 0...totalTime)
-                    .accentColor(.blue)
-                
+                            player.currentTime
+                        }, set: { newValue in
+                            player.currentTime = newValue
+                        }), in: 0...(player.duration))
+                        .accentColor(.blue)
                 }
                 
                 
                 HStack {
-                    Text("\(formatTime(currentTime))")
-                    Spacer()
-                    Text("\(formatTime(totalTime))")
+                    Text("To the end of Scene: " + "\(formatTime(player.duration - player.currentTime))")
                 }
+                Spacer()
                 Text("Now playing: " + (Deck_1.path))
                 .padding(.horizontal)
                 
@@ -73,37 +67,43 @@ struct AudioPlayerView: View {
             }
         }
         .onAppear {
-            loadAVAudio()
+            
+            Deck_1.loadAVAudio()
             
         }
         .onReceive(Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()) { _ in
-            updateProgress()
-            loadAVAudio()
+            if Deck_1.trigger == true {
+                Deck_1.loadAVAudio()
+                Deck_1.player?.play()
+                Deck_1.trigger = false
+            }
+            Deck_1.updateProgress()
+            
         }
         .onDisappear {
-            player?.stop()
+            Deck_1.player?.stop()
         }
         
     }
     
-    func loadAVAudio ()
-    {
-        @State var firstpoint = Deck_1.path.firstIndex(of: ".") ?? Deck_1.path.endIndex
-        @State var path = Deck_1.path[..<firstpoint]
-        if let url = Bundle.main.url(forResource: String(path), withExtension: "mp3"){
-                do {
-                    player = try AVAudioPlayer(contentsOf: url)
-                    player?.prepareToPlay()
-                    totalTime = player?.duration ?? 0.0
-                } catch {
-                    print("Error loading audio: \(error)")
-                }
-            
-        } else {
-            print("Audio file URL is nil.")
-        }
-        
-    }
+//    func loadAVAudio ()
+//    {
+//        @State var firstpoint = Deck_1.path.firstIndex(of: ".") ?? Deck_1.path.endIndex
+//        @State var path = Deck_1.path[..<firstpoint]
+//        if let url = Bundle.main.url(forResource: String(path), withExtension: "mp3"){
+//                do {
+//                    player = try AVAudioPlayer(contentsOf: url)
+//                    player?.prepareToPlay()
+//                    totalTime = player?.duration ?? 0.0
+//                } catch {
+//                    print("Error loading audio: \(error)")
+//                }
+//            
+//        } else {
+//            print("Audio file URL is nil.")
+//        }
+//        
+//    }
     
 }
 
@@ -115,4 +115,3 @@ struct ContentView: View {
                 .padding()
     }
 }
-
