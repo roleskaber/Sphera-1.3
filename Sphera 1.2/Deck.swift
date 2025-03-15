@@ -7,8 +7,8 @@
 import AVFoundation
 class Deck {
     var player: AVAudioPlayer?
-    private var totalTime: TimeInterval = 0.0
-    private var currentTime: TimeInterval = 0.0
+    var totalTime: TimeInterval = 0.0
+    var currentTime: TimeInterval = 0.0
     var play: String
     var path: String
     var trigger: Bool
@@ -34,6 +34,7 @@ class Deck {
                     player = try AVAudioPlayer(contentsOf: url)
                     player?.prepareToPlay()
                     totalTime = player?.duration ?? 0.0
+                    currentTime = 0.0
                 } catch {
                     print("Error loading audio: \(error)")
                 }

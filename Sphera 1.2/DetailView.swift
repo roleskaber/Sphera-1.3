@@ -13,7 +13,6 @@ struct DetailView: View {
     
     @Binding var Deck_1: Deck
     @Binding var Deck_2: Deck
-    
     @Environment(\.modelContext) private var modelContext
     
     @Query var musicLib: [Music]
@@ -36,15 +35,19 @@ struct DetailView: View {
                             }
                             Spacer()
                             HStack {
-                                Slider(value: Binding(get: {
-                                    item.mood
-                                }, set: { newValue in
-                                    item.mood = newValue
-                                }), in: 0...1)
-                                .accentColor(.blue)
-                                Text("Choose mood")
-                                    .padding()
-                                
+                                if item.mood != nil {
+                                    Slider(value: Binding(
+                                        get: { item.mood ?? 0.0 },
+                                        set: { newValue in item.mood = newValue }
+                                    ), in: 0...1)
+                                    .accentColor(.blue)
+                                    Text("Choose mood")
+                                        .padding()
+                                } else {
+                                    Button("add mood") {
+                                        item.mood = 0.0
+                                    }
+                                }
                             }
                             .padding()
                             HStack {
@@ -89,57 +92,74 @@ struct DetailView: View {
                         .fileImporter(isPresented: $isImporting, allowedContentTypes: [.mp3]) { result in
                             switch result {
                             case .success(let url):
-                                let filepath = url.path  // Получаем путь к файлу
+                                let filepath: URL = URL(string: url.path)!
                                 addItem(url: filepath)
                             case .failure(let error):
                                 print(error)
-                            }
                         }
+                    }
                 }
             }
         } detail: {
             Text("Select an item")
         }
-        
-        .onAppear {
-            var fileNames: [String] = []
-            let fileManager = FileManager.default
-            guard let resourcePath = Bundle.main.resourcePath else {
-                print("Не удалось найти путь к ресурсам.")
-                return
-            }
-            
-            do {
-                let files = try fileManager.contentsOfDirectory(atPath: resourcePath)
-                fileNames = files.filter { $0.hasSuffix(".mp3") }
-            } catch {
-                print("Ошибка при чтении файлов: \(error)")
-            }
-            for fileName in fileNames {
-                var avaliable: Bool = false
-                for item in standartMusicLib
-                {
-                    if item.name == fileName {
-                        avaliable = true
-                    }
+        .task {
+            let newItems: [Music] = [Music(name: "nature", path: "nature.mp3", mood: 0.6),
+                                    Music(name: "rain", path: "rain.mp3", mood: 0.2),
+                                    Music(name: "library", path: "library.mp3", mood: 0.8),]
+            for standartItem in newItems {
+                var availiable: Bool = false
+                for item in standartMusicLib {
+                    if item.path == standartItem.path  { availiable = true }
                 }
-                if avaliable == false {
-                    modelContext.insert(Music(name: fileName, path: fileName, mood: 0))
+                if !availiable { modelContext.insert(standartItem) }
+                
+            }
+        }
+        .toolbar {
+            ToolbarItem {
+                Menu("Options") {
+                    Button("reload items", action: reloadItems)
                 }
             }
         }
-        
     }
-    private func addItem(url: String) {
-        withAnimation {
-            let firstpoint = url.firstIndex(of: ".") ?? url.endIndex
-            let name = url[..<firstpoint]
-            let newItem = Music(name: String(name), path: url, mood: 0)  // Используем String(name)
-            modelContext.insert(newItem)
+        
+    private func reloadItems () {
+        var fileNames: [String] = []
+        let fileManager = FileManager.default
+        guard let resourcePath = Bundle.main.resourcePath else {
+            print("Не удалось найти путь к ресурсам.")
+            return
         }
+        
+        do {
+            let files = try fileManager.contentsOfDirectory(atPath: resourcePath)
+            fileNames = files.filter { $0.hasSuffix(".mp3") }
+        } catch {
+            print("Ошибка при чтении файлов: \(error)")
+        }
+        
+        for fileName in fileNames {
+            var avaliable: Bool = false
+            for item in standartMusicLib
+            {
+                if item.path == fileName {
+                    avaliable = true
+                }
+            }
+            if avaliable == false {
+                modelContext.insert(Music(name: fileName, path: fileName, mood: nil))
+            }
+        }
+    }
+    private func addItem(url: URL) {
+        let name = url.deletingPathExtension().lastPathComponent
+        let newItem = Music(name: name, path: url.path, mood: nil)
+        modelContext.insert(newItem)
     }
     
-
+    
     
     private func deleteItems(offsets: IndexSet) {
         withAnimation {

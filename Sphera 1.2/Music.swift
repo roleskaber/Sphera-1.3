@@ -10,9 +10,9 @@ import SwiftData
 class Music {
     var name: String
     var path: String
-    var mood: Double
+    var mood: Double?
     
-    init(name: String, path: String, mood: Double) {
+    init(name: String, path: String, mood: Double?) {
         self.name = name
         self.path = path
         self.mood = mood
