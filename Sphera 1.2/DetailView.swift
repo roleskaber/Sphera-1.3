@@ -61,16 +61,16 @@ struct DetailView: View {
                                 
                                 Spacer()
                                 Button("Load Background", systemImage: "circle.bottomrighthalf.pattern.checkered") {
-                                    Deck_2.play = item.name
-                                    Deck_2.path = item.path
-                                    Deck_2.trigger = true
+//                                    Deck_2.play = item.name
+//                                    Deck_2.path = item.path
+//                                    Deck_2.trigger = true
                                 }.buttonStyle(.borderedProminent)
                                 Button("Load main", systemImage: "lightspectrum.horizontal") {
-                                    Deck_1.play = item.name
-                                    Deck_1.path = item.path
+                                    Deck_1.song.name = item.name
+                                    Deck_1.song.path = item.path
+                                    Deck_1.song.mood = item.mood
                                     Deck_1.trigger = true
-                                }.buttonStyle(.borderedProminent)
-                            }
+                                }                            }
                             .controlSize(.large)
                             .padding()
                             

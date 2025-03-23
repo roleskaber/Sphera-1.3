@@ -7,13 +7,29 @@ struct AudioPlayerView: View {
     @Environment(\.openWindow) private var openWindow
     @Binding var Deck_1: Deck
     @Binding var menu: Bool
-    
+
     @State var isCompact = false
     
-    @State private var colors = [Color.purple, Color.cyan, Color.blue, Color.mint,
-                                 Color.mint, Color.indigo, Color.yellow,
-                                 Color.orange, Color.red, Color.brown]
-    
+//    private let colors: [Color] = [
+//            .purple, .cyan, .blue, .mint, .mint, .indigo, .yellow,
+//            .orange, .red, .brown, .black
+//    ]
+//        
+//    private var intMood: Int
+//    @State private var maincolor: [Color]
+//    
+//    init(deck: Deck) {
+//            let moodValue = Int((deck.song.mood ?? 0.0).rounded(.toNearestOrAwayFromZero))
+//            self.intMood = moodValue
+//            let initialColors = [
+//                colors[min(max(moodValue + 1, 0), colors.count - 1)],
+//                colors[min(max(moodValue, 0), colors.count - 1)],
+//                colors[min(max(moodValue, 0), colors.count - 1)],
+//                colors[min(max(moodValue + 1, 0), colors.count - 1)]
+//            ]
+//            _maincolor = State(initialValue: initialColors) // Используем `_maincolor`
+//    }
+//    
     @State private var isPlaying = false
     @State private var totalTime: TimeInterval = 0.0
     @State private var currentTime: TimeInterval = 0.0
@@ -42,6 +58,8 @@ struct AudioPlayerView: View {
                     } ) {
                         Image(systemName: menu ? "arrowtriangle.up" : "arrowtriangle.down")
                     }
+                    .buttonStyle(.borderless)
+
                 if !isCompact { Spacer() }
                 if let player = Deck_1.player {
                     HStack {
@@ -50,25 +68,28 @@ struct AudioPlayerView: View {
                             if isPlaying {player.play()}
                             else {player.pause()}
                         }) {
-                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.largeTitle)
+                            Image(systemName: isPlaying ? "pause" : "play")
+                                .font(.system(size: 32))
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .opacity(0.5)
                         
-                        Slider(value: Binding(
-                            get: { currentTime },
-                            set: { newValue in
-                                player.currentTime = newValue
-                            }
-                        ), in: 0...(totalTime))
-                        .accentColor(.blue)
+                        if isCompact {
+                            Slider(value: Binding(
+                                get: { currentTime },
+                                set: { newValue in
+                                    player.currentTime = newValue
+                                }
+                            ), in: 0...(totalTime))
+                            .accentColor(.blue)
+                        }
                     }
                     if !isCompact {
+                        Spacer()
                         Text("To the end of Scene: " + formatTime(totalTime - currentTime))
                             .padding(.top, 5)
                             .opacity(0.5)
-                        Spacer()
-                        Text("Now playing: " + Deck_1.path)
+                        Text("Now playing: " + Deck_1.song.path)
                             .padding(.horizontal)
                             .opacity(0.5)
                     }
@@ -92,6 +113,7 @@ struct AudioPlayerView: View {
             if Deck_1.trigger {
                 Deck_1.loadAVAudio()
                 Deck_1.player?.play()
+                isPlaying = true
                 Deck_1.trigger = false
                 totalTime = Deck_1.player?.duration ?? 0.0
             }

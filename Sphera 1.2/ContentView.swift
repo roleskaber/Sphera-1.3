@@ -5,8 +5,10 @@ struct ContentView: View {
     @Binding var Deck_1: Deck
 //    @Binding var Deck_2: Deck
     var body: some View {
+
         if menu {
             AudioPlayerView(Deck_1: $Deck_1, menu: $menu, isCompact: false)
+
         }
         else {
             VStack {
