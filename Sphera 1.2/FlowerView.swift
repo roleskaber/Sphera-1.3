@@ -1,89 +1,68 @@
-//
-//  ObjView.swift
-//  Sphera 1.2
-//
-//  Created by Виталик Марченко on 23.03.25.
-//
 import SwiftUI
-import SwiftData
 
-struct ObjView: View  {
-    var item: Music
-    var init_mood: Double
-    @Environment(\.modelContext) private var modelContext
+struct AnimatedFigureView: View {
+    @State private var shapes: Double = 100
+    @State private var infinAnima: Bool = false
     
-    var Deck_1: Deck
-    var Deck_2: Deck
     var body: some View {
-        NavigationLink {
-            HStack {
+        VStack{
+            ZStack {
+                Figure(shapes: $shapes)
+                    .scaleEffect(infinAnima ? 1 : 0)
+                    .rotationEffect(.degrees(infinAnima ? 45: 0))
+                    .opacity(infinAnima ? 0 : 1)
+                    .animation(.interactiveSpring(response: 5, dampingFraction: 1, blendDuration: 1).repeatForever(autoreverses: false), value: infinAnima)
+                Figure(shapes: $shapes)
+                    .scaleEffect(infinAnima ? 1 : 0)
+                    .rotationEffect(.degrees(infinAnima ? 45: 0))
+                    .opacity(infinAnima ? 0 : 1)
+                    .animation(.interactiveSpring(response: 7, dampingFraction: 1, blendDuration: 1).repeatForever(autoreverses: false), value: infinAnima)
+                Figure(shapes: $shapes)
+                    .scaleEffect(infinAnima ? 1 : 0)
+                    .rotationEffect(.degrees(infinAnima ? 45: 0))
+                    .opacity(infinAnima ? 0 : 1)
+                    .animation(.interactiveSpring(response: 10, dampingFraction: 1, blendDuration: 1).repeatForever(autoreverses: false), value: infinAnima)
                 
                 
-                VStack {
-                    Spacer()
-                    Text(item.name)
-                        .font(.largeTitle)
-                        .padding()
-                    Spacer()
-                    HStack {
-                        Button("", systemImage: "trash", role: .destructive) {
-                            modelContext.delete(item)
-                            
-                        } .buttonStyle(PlainButtonStyle())
-                            .opacity(40)
-                        
-                        
-                        
-                        Spacer()
-                        Button("Load Background", systemImage: "circle.bottomrighthalf.pattern.checkered") {
-        //                                    Deck_2.play = item.name
-        //                                    Deck_2.path = item.path
-        //                                    Deck_2.trigger = true
-                        }.buttonStyle(.myAppPrimaryButton)
-                        Button("Load main", systemImage: "lightspectrum.horizontal") {
-                            Deck_1.song.name = item.name
-                            Deck_1.song.path = item.path
-                            Deck_1.song.mood = item.mood
-                            Deck_1.trigger = true
-                        } .buttonStyle(.myAppPrimaryButton)
-                        
-                        
-                    }
-                    .controlSize(.large)
-                    .buttonBorderShape(.capsule)
-                    .padding()
-                }
-                Spacer()
-                VStack {
-                    AnimatedFigureView()
-                        .padding()
-                }
                 
             }
-            HStack {
-                if item.mood != nil {
-                    
-                    Slider(value: Binding(
-                        get: { item.mood ?? 0.0 },
-                        set: { newValue in item.mood = newValue }
-                    ), in: 0...1)
-                    .accentColor(.blue)
-                    Text("Choose mood")
-                        .padding()
-                } else {
-                    Button("add mood") {
-                        item.mood = 0.0
-                    }
-                }
+            .onAppear {
+                infinAnima = true
             }
-            .padding()
-            
-            
-        } label: {
-            Text(item.name)
         }
+        Slider(value: $shapes, in: 10...500)
+            .accentColor(.blue)
+            .padding()
     }
-    
-    
-    
+}
+
+struct Figure: View {
+    var maincolor: Color?
+    @Binding var shapes: Double
+    var body: some View {
+        ZStack {
+            ForEach([0, 45, 90, -45], id: \.self) { angle in
+                Ellipse()
+                    .stroke(Color.white, lineWidth: 5)
+                    .frame(width: shapes, height: 500)
+                    .rotationEffect(.degrees(Double(angle)))
+                    .shadow(radius: 10)
+            }
+            ForEach([0, 45, 90, -45], id: \.self) { angle in
+                Ellipse()
+                    .fill(maincolor ?? Color.white)
+                    .frame(width: shapes, height: 500)
+                    .rotationEffect(.degrees(Double(angle)))
+                    .opacity(maincolor == nil ? 0.5 : 1)
+                
+            }
+        }
+
+        .scaleEffect(1.1)
+        .padding()
+    }
+}
+
+#Preview {
+    AnimatedFigureView()
 }
